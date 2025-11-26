@@ -17,7 +17,7 @@ const container = document.querySelector('.milestones');
 milestones.forEach((text, index) => {
     const card = document.createElement('div');
     card.className = 'milestone-card';
-    card.style.animationDelay = `${index * 3}s`;
+    card.style.animationDelay = `${index * 8}s`;
     card.textContent = text;
     container.appendChild(card);
 });
