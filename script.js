@@ -130,10 +130,11 @@
   }
 
   const milestones = [
-    { title: "Month 1", desc: "Our story began" },
-    { title: "Month 2", desc: "Our smiles grew brighter" },
-    { title: "Month 3", desc: "Every moment felt special" },
-    { title: "Month 4", desc: "Happy Anniversary 💞" },
+    { title: "July 26 2025", desc: "Our story began" },
+    { title: "August", desc: "Our smiles grew brighter" },
+    { title: "September", desc: "Every moment felt special" },
+    { title: "October", desc: "We entered our 3rd month" },
+    { title: "November", desc: "We broke the 3rd month rule" },
     { title: "Days", desc: "We've been together" },
     { title: "Always", desc: "I love you more every day." },
     { title: ":)", desc: "meri jaana hai kaiya at ho meri pyaari ho si." } // added milestone
