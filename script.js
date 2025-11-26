@@ -1,7 +1,7 @@
 (() => {
   const START_DATE = new Date("2025-07-26T00:00:00Z");
   const M_DURATION = 9;
-  const GAP_BETWEEN = 1; // smaller gap for faster appearance
+  const GAP_BETWEEN = 1; // gap between milestone cards
   const HEART_SPAWN_MS = 500;
   const PETAL_SPAWN_MS = 1200;
   const PHASE_CYCLE_SECONDS = 40;
@@ -23,6 +23,7 @@
 
   const rand = (min, max) => Math.random() * (max - min) + min;
 
+  // love counter
   function updateLoveCounter() {
     const diffDays = Math.floor((new Date() - START_DATE) / (1000 * 60 * 60 * 24));
     lcDaysEl.textContent = `${diffDays} days`;
@@ -30,6 +31,7 @@
   updateLoveCounter();
   setInterval(updateLoveCounter, 1000);
 
+  // background phases
   const phases = ["phase-dawn", "phase-day", "phase-evening", "phase-night"];
   let phaseIndex = 0;
   function nextPhase() {
@@ -40,6 +42,7 @@
   nextPhase();
   setInterval(nextPhase, PHASE_CYCLE_SECONDS * 1000);
 
+  // hearts
   let heartTimer = null;
   function spawnHeart() {
     if (!heartsContainer) return;
@@ -48,8 +51,6 @@
     heart.className = "heart" + (isGold ? " gold" : "");
     const size = Math.floor(rand(14, 48));
     heart.style.setProperty("--hsize", `${size}px`);
-    // keep translateY animation; reduce start so they appear lower
-    heart.style.transform = `translateY(${rand(0, 20)}vh)`;
     heart.style.left = `${rand(8, 92)}%`;
     heart.style.setProperty("--hvel", `${rand(6, 14)}s`);
     heart.style.zIndex = Math.floor(rand(18, 30));
@@ -62,6 +63,7 @@
     for (let i = 0; i < 6; i++) setTimeout(spawnHeart, i * 200);
   }
 
+  // petals
   let petalTimer = null;
   function spawnPetal() {
     if (!midground) return;
@@ -79,6 +81,7 @@
     for (let i = 0; i < 4; i++) setTimeout(spawnPetal, i * 250);
   }
 
+  // roadside decoration
   function seedRoadside() {
     const leftSide = document.querySelector(".roadside-left");
     const rightSide = document.querySelector(".roadside-right");
@@ -101,6 +104,7 @@
   }
   seedRoadside();
 
+  // create milestone cards
   function mkMilestoneCard(obj) {
     const wrap = document.createElement("div");
     wrap.className = "milestone-card";
@@ -121,7 +125,7 @@
     wrap.appendChild(p);
     wrap.setAttribute("role", "article");
     wrap.setAttribute("aria-label", `${obj.title} — ${obj.desc}`);
-    wrap.style.animation = `milestoneMove ${M_DURATION}s linear infinite`; // loop smoothly
+    wrap.style.animation = "none"; // sequence controls animation
     return wrap;
   }
 
@@ -132,11 +136,41 @@
     { title: "Month 4", desc: "Happy Anniversary 💞" },
     { title: "Days", desc: "We've been together" },
     { title: "Always", desc: "I love you more every day." },
-    { title: ":)", desc: "meri jaana hai kaiya at ho meri pyaari ho si."}
+    { title: ":)", desc: "meri jaana hai kaiya at ho meri pyaari ho si." } // added milestone
   ];
 
   milestones.forEach(m => milestonesContainer.appendChild(mkMilestoneCard(m)));
 
+  // milestone sequence
+  let isSequenceRunning = false;
+  function playSequenceOnce() {
+    if (isSequenceRunning) return;
+    isSequenceRunning = true;
+    const cards = Array.from(milestonesContainer.children);
+    cards.forEach((card, i) => {
+      setTimeout(() => {
+        card.style.animation = `milestoneMove ${M_DURATION}s linear 1 forwards`;
+        card.classList.add("active");
+        setTimeout(() => {
+          card.classList.remove("active");
+          card.style.animation = "none";
+        }, M_DURATION * 1000);
+      }, PER_MILESTONE * i * 1000);
+    });
+    setTimeout(() => {
+      loopFlash.style.opacity = "1";
+      setTimeout(() => loopFlash.style.opacity = "0", 380);
+      isSequenceRunning = false;
+    }, (PER_MILESTONE * cards.length) * 1000);
+  }
+
+  function startSequenceLoop() {
+    playSequenceOnce();
+    const totalCycleSec = PER_MILESTONE * milestones.length;
+    setInterval(playSequenceOnce, totalCycleSec * 1000);
+  }
+
+  // start sequence and particles after intro
   function hideIntroAndStart() {
     if (intro) {
       intro.setAttribute("aria-hidden", "true");
@@ -144,6 +178,7 @@
     }
     startHearts();
     startPetals();
+    startSequenceLoop();
   }
 
   if (beginBtn) beginBtn.addEventListener("click", async () => {
@@ -151,6 +186,7 @@
     hideIntroAndStart();
   });
 
+  // autoplay music
   try {
     if (music) {
       music.volume = 0.16;
@@ -159,6 +195,7 @@
     }
   } catch {}
 
+  // update days card
   function updateDaysCard() {
     const daysNow = Math.floor((new Date() - START_DATE) / (1000 * 60 * 60 * 24));
     const dynCard = milestonesContainer.children[4];
