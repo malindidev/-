@@ -1,26 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Milestone Road Animation</title>
-    <link rel="stylesheet" href="style.css">
-    <script defer src="script.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Our Milestone Road — 4 Months</title>
+
+  <!-- Google Font (open, CDN) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Core stylesheet (drop in next) -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Main script (deferred) -->
+  <script defer src="script.js"></script>
 </head>
 <body>
 
-    <!-- Background -->
-    <div class="background"></div>
+  <!-- ======================================================
+       Intro overlay (plays before the road; triggers audio
+       if browser blocks autoplay). Visible on load.
+       ====================================================== -->
+  <div id="intro" class="intro-overlay" aria-hidden="false">
+    <div class="intro-content">
+      <h1 class="intro-title">Four months down...</h1>
+      <p class="intro-sub">26 July 2025 — the day our journey began</p>
+      <button id="beginBtn" class="btn-begin" type="button">Begin the journey</button>
+    </div>
+    <div class="intro-sheen" aria-hidden="true"></div>
+  </div>
 
-    <!-- Road -->
-    <div class="road-container">
-        <div class="road">
-            <div class="lane-line"></div>
-        </div>
+  <!-- ======================================================
+       Background & Parallax layers (no external assets)
+       Layers: sky (gradient), clouds, fog, stars
+       ====================================================== -->
+  <div class="bg-layer bg-sky"></div>
+  <div class="bg-layer bg-clouds"></div>
+  <div class="bg-layer bg-fog"></div>
+  <div class="bg-layer bg-stars"></div>
+
+  <!-- ======================================================
+       Floating hearts and environmental particles
+       JS will spawn hearts inside this container
+       ====================================================== -->
+  <div class="particles hearts" aria-hidden="true"></div>
+
+  <!-- ======================================================
+       Road container (centre), parallaxed layers inside
+       ====================================================== -->
+  <div class="scene">
+    <!-- Left roadside decorations -->
+    <div class="roadside roadside-left" aria-hidden="true"></div>
+
+    <!-- Road centre -->
+    <div class="road-container" role="img" aria-label="Animated road with milestones">
+      <div class="road-layer road-surface">
+        <!-- moving lane line -->
+        <div class="lane-line"></div>
+      </div>
+
+      <!-- Mid-ground extras (butterflies, petals etc) -->
+      <div class="midground"></div>
     </div>
 
-    <!-- Milestone Cards (JS will inject them here) -->
-    <div class="milestones"></div>
+    <!-- Right roadside decorations -->
+    <div class="roadside roadside-right" aria-hidden="true"></div>
+  </div>
+
+  <!-- ======================================================
+       Milestones container (JS will inject cards here)
+       Each .milestone-card supports:
+         - optional <img class="photo"> (circle)
+         - <h3 class="m-title">
+         - <p class="m-desc">
+       ====================================================== -->
+  <div class="milestones" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ======================================================
+       Love counter — top-right glass capsule (auto-updates)
+       Start date encoded here for easier JS lookup.
+       ====================================================== -->
+  <div id="loveCounter" class="love-counter" data-start="2025-07-26">
+    <div class="lc-inner">
+      <div class="lc-icon" aria-hidden="true">💗</div>
+      <div class="lc-text">
+        <div class="lc-days" id="lcDays">0 days</div>
+        <div class="lc-sub">together</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       Hidden audio element — place your MP3 at top-level
+       filename: music.mp3 (or change src accordingly)
+       NOTE: many browsers block autoplay with sound; we
+       attempt to play on load and fallback to playing when
+       the user presses the Begin button.
+       ====================================================== -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="music.mp3" type="audio/mpeg">
+    <!-- If you want to use OGG, add another <source> here -->
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- ======================================================
+       Accessibility: skip link (optional enhancement)
+       ====================================================== -->
+  <a class="visually-hidden" href="#loveCounter">Skip to love counter</a>
+
+  <!-- ======================================================
+       Small inline guidance for maintainers (not displayed)
+       Keep this at the end of body.
+       ====================================================== -->
+  <!--
+    NOTES:
+      - Drop style.css and script.js (the next messages) into the same repo root.
+      - Drop your audio file as music.mp3 (or change the <audio> src).
+      - To add a photo to a milestone, pass an object with `photo: 'photo.jpg'`
+        The code expects photos in the repo root; keep filenames in the milestones array.
+      - This HTML intentionally uses only top-level files (no assets folder).
+  -->
 
 </body>
 </html>
