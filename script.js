@@ -131,7 +131,7 @@
     { title: "Month 3", desc: "Every moment felt special" },
     { title: "Month 4", desc: "Happy Anniversary 💞" },
     { title: "Days", desc: "We've been together" },
-    { title: "Always", desc: "I love you more every day." }
+    { title: "Always", desc: "I love you more every day." },
     { title: ":)", desc: "meri jaana hai kaiya at ho meri pyaari ho si."}
   ];
 
