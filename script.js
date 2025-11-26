@@ -1,10 +1,9 @@
 (() => {
   const START_DATE = new Date("2025-07-26T00:00:00Z");
   const M_DURATION = 9;
-  const GAP_BETWEEN = 3;
-  const REPEAT_GAP = 1.2;
-  const HEART_SPAWN_MS = 700;
-  const PETAL_SPAWN_MS = 1400;
+  const GAP_BETWEEN = 1; // reduced gap for faster card visibility
+  const HEART_SPAWN_MS = 400; // spawn more frequently
+  const PETAL_SPAWN_MS = 1200;
   const PHASE_CYCLE_SECONDS = 40;
   const GOLD_HEART_CHANCE = 0.06;
   const PER_MILESTONE = M_DURATION + GAP_BETWEEN;
@@ -49,6 +48,8 @@
     heart.className = "heart" + (isGold ? " gold" : "");
     const size = Math.floor(rand(14, 48));
     heart.style.setProperty("--hsize", `${size}px`);
+    // spawn hearts lower so they are fully visible
+    heart.style.bottom = `${rand(4, 12)}%`;
     heart.style.left = `${rand(8, 92)}%`;
     heart.style.setProperty("--hvel", `${rand(6, 14)}s`);
     heart.style.zIndex = Math.floor(rand(18, 30));
@@ -135,14 +136,11 @@
 
   milestones.forEach(m => milestonesContainer.appendChild(mkMilestoneCard(m)));
 
-  let sequenceInterval = null;
-  let isSequenceRunning = false;
-
   function playSequenceOnce() {
-    if (isSequenceRunning) return;
-    isSequenceRunning = true;
-
     const cards = Array.from(milestonesContainer.children);
+    const totalCards = cards.length;
+    const interval = 20; // smaller interval so motion is continuous
+
     cards.forEach((card, i) => {
       setTimeout(() => {
         card.style.animation = `milestoneMove ${M_DURATION}s linear 1 forwards`;
@@ -151,32 +149,19 @@
           card.classList.remove("active");
           card.style.animation = "none";
         }, M_DURATION * 1000);
-      }, PER_MILESTONE * i * 1000);
+      }, i * interval * 100); // reduced delay
     });
 
     setTimeout(() => {
       loopFlash.style.opacity = "1";
       setTimeout(() => loopFlash.style.opacity = "0", 380);
-      isSequenceRunning = false;
-    }, (PER_MILESTONE * cards.length + REPEAT_GAP) * 1000);
+    }, totalCards * interval * 100 + REPEAT_GAP * 1000);
   }
 
   function startSequenceLoop() {
     playSequenceOnce();
     const totalCycleSec = PER_MILESTONE * milestones.length + REPEAT_GAP;
-    sequenceInterval = setInterval(playSequenceOnce, totalCycleSec * 1000);
-  }
-
-  let autoplaySucceeded = false;
-  function tryAutoplay() {
-    if (!music) return Promise.resolve(false);
-    music.volume = 0.16;
-    music.loop = true;
-    const p = music.play();
-    if (p !== undefined) {
-      return p.then(() => { autoplaySucceeded = true; hideIntroAndStart(); return true; })
-              .catch(() => { autoplaySucceeded = false; return false; });
-    } else { autoplaySucceeded = false; return Promise.resolve(false); }
+    setInterval(playSequenceOnce, totalCycleSec * 1000);
   }
 
   function hideIntroAndStart() {
@@ -194,8 +179,15 @@
     hideIntroAndStart();
   });
 
-  tryAutoplay();
+  try {
+    if (music) {
+      music.volume = 0.16;
+      music.loop = true;
+      music.play().catch(() => {});
+    }
+  } catch {}
 
+  // dynamic "days" card
   function updateDaysCard() {
     const daysNow = Math.floor((new Date() - START_DATE) / (1000 * 60 * 60 * 24));
     const dynCard = milestonesContainer.children[4];
@@ -203,15 +195,15 @@
   }
   setInterval(updateDaysCard, 10000);
 
-  for (let i = 0; i < 10; i++) setTimeout(spawnHeart, i * 200);
-  for (let i = 0; i < 6; i++) setTimeout(spawnPetal, i * 300);
-  for (let i = 0; i < 12; i++) setTimeout(spawnPetal, i * 450);
+  // initial burst of hearts/petals
+  for (let i = 0; i < 10; i++) setTimeout(spawnHeart, i * 150);
+  for (let i = 0; i < 6; i++) setTimeout(spawnPetal, i * 250);
+  for (let i = 0; i < 12; i++) setTimeout(spawnPetal, i * 350);
 
+  // accessibility
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
   if (mq.matches) {
     if (music) music.pause();
-    stopHearts();
-    stopPetals();
     const firstCard = milestonesContainer.children[0];
     if (firstCard) {
       firstCard.style.animation = "none";
@@ -224,12 +216,8 @@
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       if (music && !music.paused) music.pause();
-      stopHearts();
-      stopPetals();
     } else {
-      if (music && autoplaySucceeded) music.play().catch(() => {});
-      startHearts();
-      startPetals();
+      if (music) music.play().catch(() => {});
     }
   });
 })();
